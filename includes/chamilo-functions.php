@@ -173,7 +173,7 @@ function display_course_info(){
     $chamilo_url = get_option('chamilo_setting_url'); // Chamilo API Base URL
     $default_pic = rtrim($chamilo_url, '/') . '/main/img/session_default.png'; // ensure URL not end `/`
     if (is_wp_error($courses_list)) {
-        return '<p>Can't get courses: ' . $response->get_error_message() . '</p>';
+        return '<p>Can\'t get courses: ' . $response->get_error_message() . '</p>';
     }
 
     $output = '<div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between;">';
