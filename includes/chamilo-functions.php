@@ -133,7 +133,7 @@ function chamilo_rest_api($body){
     $body = wp_remote_retrieve_body($response);
     $data = json_decode($body, true);
 
-    if (empty($data) || isset($data['error'])) {
+    if (empty($data)) {
         return new WP_Error('api_error', 'Chamilo API 返回错误', ['status' => 500, 'response' => $body]);
     }
     return $data;
