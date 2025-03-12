@@ -123,7 +123,6 @@ function chamilo_rest_api($body){
     ];
     // 发送 POST 请求
     $response = wp_remote_post($api_endpoint, $request_body);
-    error_log('$response: ' . $response );
 
     // 错误处理
     if (is_wp_error($response)) {
@@ -131,13 +130,16 @@ function chamilo_rest_api($body){
     }
 
     $body = wp_remote_retrieve_body($response);
-    $data = json_decode($body, true);
-
+    error_log('body: ' . $body);
+    $data = json_decode($body);
     if (empty($data)) {
         return new WP_Error('api_error', 'Chamilo API 返回错误', ['status' => 500, 'response' => $body]);
     }
     return $data;
+    
 }
+
+
 
 function chamilo_get_course_description($course){
     $request_body = [
@@ -168,7 +170,7 @@ function chamilo_get_courses_rest_api(){
 
     // 格式化返回数据
     $courses_list = [];
-    foreach ($data as $course) {
+    foreach ($data['data'] as $course) {
         $request_pic = [
             'action'   => 'course_info',
             'course' => $course['id']
