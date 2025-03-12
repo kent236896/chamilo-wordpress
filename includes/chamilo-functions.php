@@ -112,15 +112,15 @@ function chamilo_rest_api($body){
     
     $request_body = [
         'headers' => [
-            'Content-Type' => 'multipart/form-data',
+            'Content-Type' => 'application/x-www-form-urlencoded',
         ],
-        'body' => array_merge(
+        'body' => http_build_query(array_merge(
             $body,
             [
                 'username' => $admin_user,
                 'api_key' => $api_key,
             ]
-        ),
+        )),
     ];
     // 发送 POST 请求
     $response = wp_remote_post($api_endpoint, $request_body);
