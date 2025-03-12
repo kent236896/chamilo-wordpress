@@ -169,7 +169,7 @@ function chamilo_get_courses_rest_api(){
 }
 
 function display_course_info(){
-    $courses_list = chamilo_get_courses_rest_api()
+    $courses_list = chamilo_get_courses_rest_api();
     $chamilo_url = get_option('chamilo_setting_url'); // Chamilo API Base URL
     $default_pic = rtrim($chamilo_url, '/') . '/main/img/session_default.png'; // ensure URL not end `/`
     if (is_wp_error($courses_list)) {
@@ -179,12 +179,14 @@ function display_course_info(){
     $output = '<div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between;">';
 
     foreach ($courses_list as $item) {
-        // 检查必要字段是否存在
+     
+
         $code = isset($item['code']) ? $item['code'] : '';
         $title = isset($item['title']) ? $item['title'] : 'No Title';
         $url_picture = isset($item['url_picture']) ? $item['url_picture'] : '';
         $language = isset($item['language']) ? $item['language'] : 'nuknow';
         $about_url = isset($item['about_url']) ? $item['about_url'] : '#';
+
         $teachers = isset($item['teachers']) ? $item['teachers'] : 'nuknow';
 
         $output .= '<a href="' . esc_url($about_url) . '" style="flex: 0 0 calc(25% - 15px); text-decoration: none; color: inherit;" target="_blank">';
