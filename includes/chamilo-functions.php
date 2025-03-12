@@ -177,45 +177,40 @@ function display_course_info(){
     }
 
     $output = '<div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between;">';
-
     foreach ($courses_list as $item) {
-     
-
-        $code = isset($item['code']) ? $item['code'] : '';
         $title = isset($item['title']) ? $item['title'] : 'No Title';
         $url_picture = isset($item['url_picture']) ? $item['url_picture'] : '';
-        $language = isset($item['language']) ? $item['language'] : 'nuknow';
+        $language = isset($item['language']) ? $item['language'] : 'UNKOWN';
         $about_url = isset($item['about_url']) ? $item['about_url'] : '#';
+        $teachers = isset($item['teachers']) ? $item['teachers'] : 'UNKOWN';
 
-        $teachers = isset($item['teachers']) ? $item['teachers'] : 'nuknow';
-
-        $output .= '<a href="' . esc_url($about_url) . '" style="flex: 0 0 calc(25% - 15px); text-decoration: none; color: inherit;" target="_blank">';
-        $output .= '<div style="background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); box-sizing: border-box; height: 100%; display: flex; flex-direction: column;">';
-        
-        // picture
-        if ($url_picture) {
-            $output .= '<div style="width: 100%; height: 150px; overflow: hidden; border-radius: 4px; margin-bottom: 10px;">';
-            $output .= '<img src="' . esc_url($url_picture) . '" alt="' . esc_attr($title) . '" style="width: 100%; height: 100%; object-fit: cover;">';
-            $output .= '</div>';
-        }else{
-            $output .= '<div style="width: 100%; height: 150px; overflow: hidden; border-radius: 4px; margin-bottom: 10px;">';
-            $output .= '<img src="' . esc_url($default_pic) . '" alt="' . esc_attr($title) . '" style="width: 100%; height: 100%; object-fit: cover;">';
-            $output .= '</div>';
+        // check title length
+        $title_display = $title;
+        if (mb_strlen($title, 'UTF-8') > 50) {
+            $title_display = mb_substr($title, 0, 50, 'UTF-8') . '...';
         }
 
-        // text
+        $output .= '<a href="' . esc_url($about_url) . '" style="flex: 0 0 calc(30% - 15px); text-decoration: none; color: inherit;" target="_blank">';
+        $output .= '<div style="background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); box-sizing: border-box; height: 100%; display: flex; flex-direction: column;">';
+        
+        // pictrue
+        if ($url_picture) {
+            $output .= '<img src="' . esc_url($url_picture) . '" alt="' . esc_attr($title) . '" style="width: 100%; height: 150px; object-fit: cover; border-radius: 4px; margin-bottom: 10px;">';
+        }else {
+            $output .= '<img src="' . esc_url($default_pic) . '" alt="' . esc_attr($title) . '" style="width: 100%; height: 150px; object-fit: cover; border-radius: 4px; margin-bottom: 10px;">';
+        }
+        
+        // text 
         $output .= '<div style="flex-grow: 1;">';
-        $output .= '<h3 style="margin: 0 0 10px 0; font-size: 18px;">' . esc_html($title) . '</h3>';
-        $output .= '<p style="margin: 5px 0; color: #666;">Language: ' . esc_html($language) . '</p>';
-        $output .= '<p style="margin: 5px 0; color: #666;">Teachers: ' . esc_html($teachers) . '</p>';
+        $output .= '<h3 style="margin: 0 0 10px 0; font-size: 14px; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; text-overflow: ellipsis;" title="' . esc_attr($title) . '">' . esc_html($title_display) . '</h3>';
+        $output .= '<p style="margin: 5px 0; color: #666; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Language: ' . esc_html($language) . '</p>';
+        $output .= '<p style="margin: 5px 0; color: #666; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Teachers: ' . esc_html($teachers) . '</p>';
         $output .= '</div>';
-
+        
         $output .= '</div>';
         $output .= '</a>';
     }
-
     $output .= '</div>';
-
     return $output;
     
 }
