@@ -158,7 +158,11 @@ function chamilo_get_courses_rest_api(){
     ];
     $data = chamilo_rest_api($request_body);
 
-    if (empty($data) || isset($data['error'])) {
+    if (is_wp_error($data)) {
+        error_log('Received WP_Error: ' . $data->get_error_message());
+        return $data;
+    } elseif (empty($data) || isset($data['error'])) {
+        error_log('Empty data or contains error key: ' . print_r($data, true));
         return new WP_Error('api_error', 'Chamilo API 返回错误', ['status' => 500, 'response' => $body]);
     }
 
