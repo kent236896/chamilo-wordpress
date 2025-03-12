@@ -176,7 +176,7 @@ function chamilo_get_courses_rest_api(){
             'title' => $course['title'] ?? '',
             'url_picture' => $response_course_info['urlPicture'] ?? '',
             'language' => $course['course_language'] ?? 'unknown',
-            'teachers' => $response_course_info['teachers'] ?? 'unknown'
+            'teachers' => $response_course_info['teachers'] ?? 'unknown',
             'about_url' => $chamilo_url . '/course/' . $course['id'] .  '/about'
         ];
     }
