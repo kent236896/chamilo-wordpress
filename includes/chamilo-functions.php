@@ -143,7 +143,7 @@ function chamilo_get_course_description($course){
         'action'   => 'course_descriptions',
         'course' => $course,
     ];
-    return chamilo_rest_api(request_body);
+    return chamilo_rest_api($request_body);
 }
 
 
@@ -168,7 +168,7 @@ function chamilo_get_courses_rest_api(){
             'action'   => 'course_info',
             'course' => $course['id']
         ];
-        $response_course_info = chamilo_rest_api(request_pic);
+        $response_course_info = chamilo_rest_api($request_pic);
 
 
         $courses_list[] = [
