@@ -102,6 +102,7 @@ function chamilo_rest_api($body){
     $chamilo_url = get_option('chamilo_setting_url'); // Chamilo API 基础 URL
     $admin_user = get_option('chamilo_setting_admin'); // Chamilo 管理员用户名
     $api_key = get_option('chamilo_setting_key'); // Chamilo API Key
+    error_log('$chamilo_url: ' . $chamilo_url . ', admin_user: ' . $admin_user . ', api_key: ' . $api_key);
 
     if (empty($chamilo_url) || empty($admin_user) || empty($api_key)) {
         return new WP_Error('missing_config', 'Chamilo API 配置缺失', ['status' => 400]);
