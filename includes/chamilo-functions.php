@@ -120,7 +120,7 @@ function chamilo_rest_api($body){
                 'api_key' => $api_key,
             ]
         ),
-    ]
+    ];
     // 发送 POST 请求
     $response = wp_remote_post($api_endpoint, $request_body);
 
