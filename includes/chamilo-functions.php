@@ -135,15 +135,15 @@ function chamilo_rest_api($body){
     if (empty($data) || isset($data['error'])) {
         return new WP_Error('api_error', 'Chamilo API 返回错误', ['status' => 500, 'response' => $body]);
     }
-    return $data
+    return $data;
 }
 
 function chamilo_get_course_description($course){
     $request_body = [
         'action'   => 'course_descriptions',
         'course' = > $course,
-    ]
-    return chamilo_rest_api(request_body)
+    ];
+    return chamilo_rest_api(request_body);
 }
 
 
@@ -154,8 +154,8 @@ function chamilo_get_course_description($course){
 function chamilo_get_courses_rest_api(){
     $request_body = [
             'action'   => 'get_courses',
-        ]
-    $data = chamilo_rest_api(request_body)
+    ];
+    $data = chamilo_rest_api(request_body);
 
     if (empty($data) || isset($data['error'])) {
         return new WP_Error('api_error', 'Chamilo API 返回错误', ['status' => 500, 'response' => $body]);
@@ -167,8 +167,8 @@ function chamilo_get_courses_rest_api(){
         $request_pic = [
             'action'   => 'course_info',
             'course' => $course['id']
-        ]
-        $response_course_info = chamilo_rest_api(request_pic)
+        ];
+        $response_course_info = chamilo_rest_api(request_pic);
 
 
         $courses_list[] = [
