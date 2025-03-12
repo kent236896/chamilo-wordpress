@@ -141,7 +141,7 @@ function chamilo_rest_api($body){
 function chamilo_get_course_description($course){
     $request_body = [
         'action'   => 'course_descriptions',
-        'course' = > $course,
+        'course' => $course,
     ];
     return chamilo_rest_api(request_body);
 }
