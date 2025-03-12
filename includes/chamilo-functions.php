@@ -78,36 +78,19 @@ function chamilo_settings_api_init() {
     register_setting('reading', 'chamilo_setting_key');
 }
 
-/**
- * Basic menu functions
- */
-
-/**
- * Get data from Chamilo
- */
-function chamilo_get_courses($visibilities = array()) {
-    $signature = chamilo_get_signature(CHAMILO_GLOBAL_SIGNATURE);
-    $username = get_option('chamilo_setting_admin');
-    if (empty($visibilites)) {
-        $visibilities = 'public,public-registered';
-    }
-    $courses = chamilo_soap_call( 'courses_list', 'WSCourseList', 'admin', $signature, $visibilities );
-    return $courses;
-}
-
 
 
 
 function chamilo_rest_api($body){
-    $chamilo_url = get_option('chamilo_setting_url'); // Chamilo API 基础 URL
-    $admin_user = get_option('chamilo_setting_admin'); // Chamilo 管理员用户名
+    $chamilo_url = get_option('chamilo_setting_url'); // Chamilo API Base URL
+    $admin_user = get_option('chamilo_setting_admin'); // Chamilo Administrator
     $api_key = get_option('chamilo_setting_key'); // Chamilo API Key
     
     if (empty($chamilo_url) || empty($admin_user) || empty($api_key)) {
         return new WP_Error('missing_config', 'Chamilo API 配置缺失', ['status' => 400]);
     }
 
-    $api_endpoint = rtrim($chamilo_url, '/') . '/main/webservices/api/v2.php'; // 确保 URL 末尾无 `/`
+    $api_endpoint = rtrim($chamilo_url, '/') . '/main/webservices/api/v2.php'; // ensure URL not end `/`
     
     $request_body = [
         'headers' => [
@@ -121,10 +104,10 @@ function chamilo_rest_api($body){
             ]
         )),
     ];
-    // 发送 POST 请求
+    // send POST request
     $response = wp_remote_post($api_endpoint, $request_body);
 
-    // 错误处理
+    // handle error
     if (is_wp_error($response)) {
         return $response;
     }
@@ -133,13 +116,11 @@ function chamilo_rest_api($body){
     error_log('body: ' . $body);
     $data = json_decode($body,true);
     if (empty($data)) {
-        return new WP_Error('api_error', 'Chamilo API 返回错误', ['status' => 500, 'response' => $body]);
+        return new WP_Error('api_error', 'Chamilo API error', ['status' => 500, 'response' => $body]);
     }
     return $data;
     
 }
-
-
 
 function chamilo_get_course_description($course){
     $request_body = [
@@ -148,10 +129,6 @@ function chamilo_get_course_description($course){
     ];
     return chamilo_rest_api($request_body);
 }
-
-
-
-
 
 
 function chamilo_get_courses_rest_api(){
@@ -165,10 +142,10 @@ function chamilo_get_courses_rest_api(){
         return $data;
     } elseif (empty($data)) {
         error_log('Empty data or contains error key: ' . print_r($data, true));
-        return new WP_Error('api_error', 'Chamilo API 返回错误', ['status' => 500, 'response' => $data]);
+        return new WP_Error('api_error', 'Chamilo API error', ['status' => 500, 'response' => $data]);
     }
 
-    // 格式化返回数据
+    // format data
     $courses_list = [];
     foreach ($data['data'] as $course) {
         $request_pic = [
@@ -191,90 +168,52 @@ function chamilo_get_courses_rest_api(){
     return $courses_list;
 }
 
-function chamilo_soap_call() {
-    // Prepare params
-    $params = func_get_args();
-    $service = array_shift($params);
-    $action = array_shift($params);
-    ini_set('soap.wsdl_cache_enabled', 0);
-    $services = array( 'courses_list', 'user_info', 'registration' );
-    if ( !in_array( $service, $services ) ) {
-        // Asking for rogue service, blocking!
-        return false;
+function display_course_info(){
+    $courses_list = chamilo_get_courses_rest_api()
+    $chamilo_url = get_option('chamilo_setting_url'); // Chamilo API Base URL
+    $default_pic = rtrim($chamilo_url, '/') . '/main/img/session_default.png'; // ensure URL not end `/`
+    if (is_wp_error($courses_list)) {
+        return '<p>Can't get courses: ' . $response->get_error_message() . '</p>';
     }
 
-    $service_path = get_option('chamilo_setting_url');
-    if (substr($service_path, -1, 1) != '/') {
-        $service_path .= '/';
-    }
-    $service_path .= 'main/webservices/' . $service . '.soap.php?wsdl';
+    $output = '<div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between;">';
 
-    // Init SOAP client
-    if (!empty($service_path)) {
-        $client = new SoapClient($service_path);
-        // Make call and its return result
-        try {
-            $r = $client->__soapCall($action, $params);
-        } catch (Exception $e) {
-            error_log('In chamilo_soap_call, exception when calling: '.$e->getMessage());
-            return false;
+    foreach ($courses_list as $item) {
+        // 检查必要字段是否存在
+        $code = isset($item['code']) ? $item['code'] : '';
+        $title = isset($item['title']) ? $item['title'] : 'No Title';
+        $url_picture = isset($item['url_picture']) ? $item['url_picture'] : '';
+        $language = isset($item['language']) ? $item['language'] : 'nuknow';
+        $about_url = isset($item['about_url']) ? $item['about_url'] : '#';
+        $teachers = isset($item['teachers']) ? $item['teachers'] : 'nuknow';
+
+        $output .= '<a href="' . esc_url($about_url) . '" style="flex: 0 0 calc(25% - 15px); text-decoration: none; color: inherit;" target="_blank">';
+        $output .= '<div style="background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); box-sizing: border-box; height: 100%; display: flex; flex-direction: column;">';
+        
+        // picture
+        if ($url_picture) {
+            $output .= '<div style="width: 100%; height: 150px; overflow: hidden; border-radius: 4px; margin-bottom: 10px;">';
+            $output .= '<img src="' . esc_url($url_picture) . '" alt="' . esc_attr($title) . '" style="width: 100%; height: 100%; object-fit: cover;">';
+            $output .= '</div>';
+        }else{
+            $output .= '<div style="width: 100%; height: 150px; overflow: hidden; border-radius: 4px; margin-bottom: 10px;">';
+            $output .= '<img src="' . esc_url($default_pic) . '" alt="' . esc_attr($title) . '" style="width: 100%; height: 100%; object-fit: cover;">';
+            $output .= '</div>';
         }
-        return $r;
-    } else {
-        return FALSE;
-    }
-}
 
-function chamilo_get_signature($type = CHAMILO_SECRET_KEY) {
-    global $user;
+        // text
+        $output .= '<div style="flex-grow: 1;">';
+        $output .= '<h3 style="margin: 0 0 10px 0; font-size: 18px;">' . esc_html($title) . '</h3>';
+        $output .= '<p style="margin: 5px 0; color: #666;">Language: ' . esc_html($language) . '</p>';
+        $output .= '<p style="margin: 5px 0; color: #666;">Teachers: ' . esc_html($teachers) . '</p>';
+        $output .= '</div>';
+
+        $output .= '</div>';
+        $output .= '</a>';
+    }
+
+    $output .= '</div>';
+
+    return $output;
     
-    switch ($type) {
-        case CHAMILO_PERUSER_SIGNATURE:
-            //chamilo_load_user_data($user);
-            //if (isset($user->chamilo_settings)) {
-            //    return sha1($user->chamilo_settings['user'] . $user->chamilo_settings['apikey']);
-            //}
-            return '';
-            break;
-        case CHAMILO_SECRET_KEY:
-            $addr = (CHAMILO_WP_PUBLIC_IP == '' ? $_SERVER['SERVER_ADDR'] : CHAMILO_WP_PUBLIC_IP);
-            $chamilo_apikey = sha1( $addr . get_option( 'chamilo_setting_key' ) );
-            return $chamilo_apikey;
-            break;
-        case CHAMILO_GLOBAL_SIGNATURE:
-        default:
-            $chamilo_user = get_option( 'chamilo_setting_admin' );
-            $chamilo_apikey = get_option( 'chamilo_setting_key' );
-            return sha1($chamilo_user . $chamilo_apikey);
-            return '';
-    }
-}
-
-function chamilo_get_course_visibilities() {
-    return array(
-        'public' => __('public', 'chamilo'),
-        'private' => __('private', 'chamilo'),
-        'public-registered' => __('public registered', 'chamilo'),
-        'closed' => __('closed', 'chamilo')
-    );
-}
-
-/**
- * Add blocks / widgets
- */
-
-function chamilo_register_widgets() {
-    register_widget( 'ChamiloCoursesListWidget' );
-}
-
-function chamilo_display_courses_list($courses) {
-    $output = '';
-    if (is_array($courses) && !empty($courses)) {
-        $output .= '<ul>';
-        foreach ($courses as $course) {
-            $output .= '<li><a href="'.$course->url.'" target="_blank">'.utf8_decode($course->title).'</a> ('.$course->language.')</li>';
-        }
-        $output .= '</ul>';
-    }
-    echo $output;
 }
