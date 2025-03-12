@@ -70,7 +70,7 @@ function chamilo_settings_api_init() {
     register_setting('reading', 'chamilo_setting_admin');
     add_settings_field(
         'chamilo_setting_key',
-        __( 'Chamilo\'s security key', 'chamilo' ),
+        __( 'Chamilo\'s api key', 'chamilo' ),
         'chamilo_setting_key_callback_function',
         'reading',
         'chamilo_connectivity_section'
@@ -93,6 +93,95 @@ function chamilo_get_courses($visibilities = array()) {
     }
     $courses = chamilo_soap_call( 'courses_list', 'WSCourseList', 'admin', $signature, $visibilities );
     return $courses;
+}
+
+
+
+
+function chamilo_rest_api($body){
+    $chamilo_url = get_option('chamilo_setting_url'); // Chamilo API 基础 URL
+    $admin_user = get_option('chamilo_setting_admin'); // Chamilo 管理员用户名
+    $api_key = get_option('chamilo_setting_key'); // Chamilo API Key
+
+    if (empty($chamilo_url) || empty($admin_user) || empty($api_key)) {
+        return new WP_Error('missing_config', 'Chamilo API 配置缺失', ['status' => 400]);
+    }
+
+    $api_endpoint = rtrim($chamilo_url, '/') . '/main/webservices/api/v2.php'; // 确保 URL 末尾无 `/`
+    
+    $request_body = [
+        'headers' => [
+            'Content-Type' => 'multipart/form-data',
+        ],
+    ]
+    $request_body['body'] = $body
+    // 发送 POST 请求
+    $response = wp_remote_post($api_endpoint, $request_body);
+
+    // 错误处理
+    if (is_wp_error($response)) {
+        return $response;
+    }
+
+    $body = wp_remote_retrieve_body($response);
+    $data = json_decode($body, true);
+
+    if (empty($data) || isset($data['error'])) {
+        return new WP_Error('api_error', 'Chamilo API 返回错误', ['status' => 500, 'response' => $body]);
+    }
+    return $data
+}
+
+function chamilo_get_course_description($course){
+    $request_body = [
+        'action'   => 'course_descriptions',
+        'username' => $admin_user,
+        'api_key'  => $api_key,
+        'course' = > $course,
+    ]
+    return chamilo_rest_api(request_body)
+}
+
+
+
+
+
+
+function chamilo_get_courses_rest_api(){
+    $request_body = [
+            'action'   => 'get_courses',
+            'username' => $admin_user,
+            'api_key'  => $api_key,
+        ]
+    $data = chamilo_rest_api(request_body)
+
+    if (empty($data) || isset($data['error'])) {
+        return new WP_Error('api_error', 'Chamilo API 返回错误', ['status' => 500, 'response' => $body]);
+    }
+
+    // 格式化返回数据
+    $courses_list = [];
+    foreach ($data as $course) {
+        $request_pic = [
+            'action'   => 'course_info',
+            'username' => $admin_user,
+            'api_key'  => $api_key,
+            'course' => $course['id']
+        ]
+        $response_course_info = chamilo_rest_api(request_pic)
+
+
+        $courses_list[] = [
+            'code' => $course['id'] ?? '',
+            'title' => $course['title'] ?? '',
+            'url_picture' => $response_course_info['urlPicture'] ?? '',
+            'language' => $course['course_language'] ?? 'unknown',
+            'teachers' => $response_course_info['teachers'] ?? 'unknown'
+            'about_url' => $chamilo_url . '/course/' . $course['id'] .  '/about'
+        ];
+    }
+
+    return $courses_list;
 }
 
 function chamilo_soap_call() {

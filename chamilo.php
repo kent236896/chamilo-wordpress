@@ -23,8 +23,9 @@ any later version.
   along with {Plugin Name}. If not, see {License URI}.
 */
 
-include __DIR__ . '/includes/chamilo-functions.php';
-include __DIR__ . '/includes/ChamiloCoursesListWidget.php';
+include_once __DIR__ . '/includes/chamilo-functions.php';
+include_once __DIR__ . '/includes/ChamiloCoursesListWidget.php';
+include_once __DIR__ . '/includes/chamilo-rest.php';
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
         die;
@@ -43,6 +44,7 @@ add_action( 'admin_init', 'chamilo_settings_api_init' );
 
 add_shortcode( 'chamilo_courses_list', 'chamilo_get_courses' );
 add_shortcode( 'chamilo_courses_list_by_user', 'chamilo_get_courses_by_user_display' );
-
+// Register REST API endpoint
+add_action('rest_api_init', 'chamilo_register_rest_routes');
 add_action( 'widgets_init', 'chamilo_register_widgets' );
 add_action( 'woocommerce_order_status_completed', 'chamilo_order_complete', 20, 1 );
