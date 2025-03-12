@@ -113,8 +113,14 @@ function chamilo_rest_api($body){
         'headers' => [
             'Content-Type' => 'multipart/form-data',
         ],
+        array_merge(
+            $body,
+            [
+                'username' => $admin_user,
+                'api_key' => $api_key,
+            ]
+        ),
     ]
-    $request_body['body'] = $body
     // 发送 POST 请求
     $response = wp_remote_post($api_endpoint, $request_body);
 
@@ -135,8 +141,6 @@ function chamilo_rest_api($body){
 function chamilo_get_course_description($course){
     $request_body = [
         'action'   => 'course_descriptions',
-        'username' => $admin_user,
-        'api_key'  => $api_key,
         'course' = > $course,
     ]
     return chamilo_rest_api(request_body)
@@ -150,8 +154,6 @@ function chamilo_get_course_description($course){
 function chamilo_get_courses_rest_api(){
     $request_body = [
             'action'   => 'get_courses',
-            'username' => $admin_user,
-            'api_key'  => $api_key,
         ]
     $data = chamilo_rest_api(request_body)
 
@@ -164,8 +166,6 @@ function chamilo_get_courses_rest_api(){
     foreach ($data as $course) {
         $request_pic = [
             'action'   => 'course_info',
-            'username' => $admin_user,
-            'api_key'  => $api_key,
             'course' => $course['id']
         ]
         $response_course_info = chamilo_rest_api(request_pic)
