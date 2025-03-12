@@ -113,7 +113,7 @@ function chamilo_rest_api($body){
         'headers' => [
             'Content-Type' => 'multipart/form-data',
         ],
-        array_merge(
+        'body' => array_merge(
             $body,
             [
                 'username' => $admin_user,
