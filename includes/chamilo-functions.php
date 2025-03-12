@@ -102,8 +102,7 @@ function chamilo_rest_api($body){
     $chamilo_url = get_option('chamilo_setting_url'); // Chamilo API 基础 URL
     $admin_user = get_option('chamilo_setting_admin'); // Chamilo 管理员用户名
     $api_key = get_option('chamilo_setting_key'); // Chamilo API Key
-    error_log('$chamilo_url: ' . $chamilo_url . ', admin_user: ' . $admin_user . ', api_key: ' . $api_key);
-
+    
     if (empty($chamilo_url) || empty($admin_user) || empty($api_key)) {
         return new WP_Error('missing_config', 'Chamilo API 配置缺失', ['status' => 400]);
     }
@@ -124,6 +123,7 @@ function chamilo_rest_api($body){
     ];
     // 发送 POST 请求
     $response = wp_remote_post($api_endpoint, $request_body);
+    error_log('$response: ' . $response );
 
     // 错误处理
     if (is_wp_error($response)) {
@@ -179,9 +179,9 @@ function chamilo_get_courses_rest_api(){
         $courses_list[] = [
             'code' => $course['id'] ?? '',
             'title' => $course['title'] ?? '',
-            'url_picture' => $response_course_info['urlPicture'] ?? '',
+            'url_picture' => $response_course_info['data']['urlPicture'] ?? '',
             'language' => $course['course_language'] ?? 'unknown',
-            'teachers' => $response_course_info['teachers'] ?? 'unknown',
+            'teachers' => $response_course_info['data']['teachers'] ?? 'unknown',
             'about_url' => $chamilo_url . '/course/' . $course['id'] .  '/about'
         ];
     }
