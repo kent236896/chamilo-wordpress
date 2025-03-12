@@ -155,7 +155,7 @@ function chamilo_get_courses_rest_api(){
     $request_body = [
             'action'   => 'get_courses',
     ];
-    $data = chamilo_rest_api(request_body);
+    $data = chamilo_rest_api($request_body);
 
     if (empty($data) || isset($data['error'])) {
         return new WP_Error('api_error', 'Chamilo API 返回错误', ['status' => 500, 'response' => $body]);
