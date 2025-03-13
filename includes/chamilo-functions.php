@@ -176,6 +176,8 @@ function display_course_info(){
         return '<p>Can\'t get courses: ' . $response->get_error_message() . '</p>';
     }
 
+    
+
     $output = '<div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between;">';
     foreach ($courses_list as $item) {
         $title = isset($item['title']) ? $item['title'] : 'No Title';
@@ -184,6 +186,7 @@ function display_course_info(){
         $about_url = isset($item['about_url']) ? $item['about_url'] : '#';
         $teachers = isset($item['teachers']) ? $item['teachers'] : 'UNKOWN';
 
+        $about_url = rtrim($chamilo_url, '/')  . $about_url;
         // check title length
         $title_display = $title;
         if (mb_strlen($title, 'UTF-8') > 50) {
